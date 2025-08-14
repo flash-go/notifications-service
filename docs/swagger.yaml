@@ -1,0 +1,79 @@
+basePath: /
+definitions:
+  dto.EmailResponse:
+    properties:
+      created:
+        type: string
+      errors:
+        type: string
+      from_email:
+        type: string
+      from_name:
+        type: string
+      html:
+        type: string
+      id:
+        type: integer
+      message_id:
+        type: string
+      status:
+        type: string
+      subject:
+        type: string
+      text:
+        type: string
+      to_email:
+        type: string
+    type: object
+  dto.SendRequest:
+    properties:
+      from_email:
+        type: string
+      from_name:
+        type: string
+      html:
+        type: string
+      subject:
+        type: string
+      text:
+        type: string
+      to_email:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: notifications-service
+  version: "1.0"
+paths:
+  /emails/send:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Send email
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SendRequest'
+      produces:
+      - application/json
+      - text/plain
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.EmailResponse'
+        "400":
+          description: 'Possible error codes: bad_request, bad_request:invalid_path'
+          schema:
+            type: string
+      summary: Send email
+      tags:
+      - emails
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
