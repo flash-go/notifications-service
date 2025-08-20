@@ -4,7 +4,13 @@ Microservice written in Go for delivery of notifications, based on the [Flash Fr
 
 ## Features
 
-- E-Mail via smtp.bz.
+- Communication protocols
+    - HTTP
+- Support E-Mail transport
+    - Flexible email management
+    - Dynamic email generation based on templates
+    - Supported providers
+        - smtp.bz
 
 ## Setup
 

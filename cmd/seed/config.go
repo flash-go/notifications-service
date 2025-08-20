@@ -16,5 +16,7 @@ var envMap = map[string]string{
 	"POSTGRES_USER":             infra.PostgresUserOptKey,
 	"POSTGRES_PASSWORD":         infra.PostgresPasswordOptKey,
 	"POSTGRES_DB":               infra.PostgresDbOptKey,
+	"USERS_SERVICE_NAME":        internalConfig.UsersServiceNameOptKey,
+	"USERS_ADMIN_ROLE":          internalConfig.UsersAdminRoleOptKey,
 	"EMAIL_SMTP_BZ_API_KEY":     internalConfig.ProvidersEmailSmtpBzApiKeyOptKey,
 }

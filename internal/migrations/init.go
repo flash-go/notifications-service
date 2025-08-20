@@ -10,7 +10,39 @@ func Migration_notifications_init() *gormigrate.Migration {
 		ID: "notifications_init",
 		Migrate: func(tx *gorm.DB) error {
 			if err := tx.Exec(`
+				CREATE TABLE IF NOT EXISTS email_folders (
+					id SERIAL PRIMARY KEY,
+					parent_id INTEGER REFERENCES email_folders(id) ON UPDATE CASCADE ON DELETE CASCADE,
+					name TEXT NOT NULL,
+					description TEXT NOT NULL,
+					system_flag BOOLEAN NOT NULL,
+					updated TIMESTAMPTZ NOT NULL,
+					created TIMESTAMPTZ NOT NULL
+				);
+			`).Error; err != nil {
+				return err
+			}
+
+			if err := tx.Exec(`
 				CREATE TABLE IF NOT EXISTS emails (
+					id SERIAL PRIMARY KEY,
+					folder_id INTEGER REFERENCES email_folders(id) ON UPDATE CASCADE ON DELETE CASCADE,
+					from_email TEXT NOT NULL,
+					from_name TEXT NOT NULL,
+					subject TEXT NOT NULL,
+					html TEXT NOT NULL,
+					text TEXT NOT NULL,
+					description TEXT NOT NULL,
+					system_flag BOOLEAN NOT NULL,
+					updated TIMESTAMPTZ NOT NULL,
+					created TIMESTAMPTZ NOT NULL
+				);
+			`).Error; err != nil {
+				return err
+			}
+
+			if err := tx.Exec(`
+				CREATE TABLE IF NOT EXISTS email_logs (
 					id SERIAL PRIMARY KEY,
 					from_email TEXT NOT NULL,
 					from_name TEXT NOT NULL,
@@ -24,6 +56,10 @@ func Migration_notifications_init() *gormigrate.Migration {
 					created TIMESTAMPTZ NOT NULL
 				);
 			`).Error; err != nil {
+				return err
+			}
+
+			if err := tx.Exec(`CREATE INDEX IF NOT EXISTS idx_emails_folder_id ON emails(folder_id);`).Error; err != nil {
 				return err
 			}
 

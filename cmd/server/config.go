@@ -2,6 +2,4 @@ package main
 
 import "time"
 
-const (
-	collectGoRuntimeMetricsTimeout = 10 * time.Second
-)
+const collectGoRuntimeMetricsTimeout = 10 * time.Second

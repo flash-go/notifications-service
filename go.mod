@@ -3,8 +3,8 @@ module github.com/flash-go/notifications-service
 go 1.24.0
 
 require (
-	github.com/flash-go/flash v1.0.0-rc11
-	github.com/flash-go/sdk v1.0.0-rc6
+	github.com/flash-go/flash v1.0.0-rc13
+	github.com/flash-go/sdk v1.0.0-rc8
 	github.com/go-gormigrate/gormigrate/v2 v2.1.4
 	github.com/joho/godotenv v1.5.1
 	github.com/swaggo/swag v1.16.4

@@ -1,6 +1,145 @@
 basePath: /
 definitions:
-  dto.EmailResponse:
+  github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.CreateEmailData:
+    properties:
+      description:
+        type: string
+      folder_id:
+        type: integer
+      from_email:
+        type: string
+      from_name:
+        type: string
+      html:
+        type: string
+      subject:
+        type: string
+      system_flag:
+        type: boolean
+      text:
+        type: string
+    type: object
+  github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.CreateFolderData:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: integer
+      system_flag:
+        type: boolean
+    type: object
+  github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.FilterEmailLogsData:
+    properties:
+      from_email:
+        items:
+          type: string
+        type: array
+      from_name:
+        items:
+          type: string
+        type: array
+      id:
+        items:
+          type: integer
+        type: array
+      message_id:
+        items:
+          type: string
+        type: array
+      status:
+        items:
+          type: string
+        type: array
+      to_email:
+        items:
+          type: string
+        type: array
+    type: object
+  github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.FilterEmailsData:
+    properties:
+      folder_id:
+        items:
+          type: integer
+        type: array
+      id:
+        items:
+          type: integer
+        type: array
+      system_flag:
+        type: boolean
+    type: object
+  github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.FilterFoldersData:
+    properties:
+      id:
+        items:
+          type: integer
+        type: array
+      name:
+        items:
+          type: string
+        type: array
+      parent_id:
+        items:
+          type: integer
+        type: array
+      system_flag:
+        type: boolean
+    type: object
+  github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.SendCustomData:
+    properties:
+      from_email:
+        type: string
+      from_name:
+        type: string
+      html:
+        type: string
+      subject:
+        type: string
+      text:
+        type: string
+      to_email:
+        type: string
+    type: object
+  github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.SendData:
+    properties:
+      email_id:
+        type: integer
+      to_email:
+        type: string
+      vars:
+        items:
+          type: integer
+        type: array
+    type: object
+  port._UpdateEmailData:
+    properties:
+      description:
+        type: string
+      folder_id:
+        type: integer
+      from_email:
+        type: string
+      from_name:
+        type: string
+      html:
+        type: string
+      subject:
+        type: string
+      text:
+        type: string
+    type: object
+  port._UpdateFolderData:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: integer
+    type: object
+  port.EmailLogResponse:
     properties:
       created:
         type: string
@@ -25,19 +164,46 @@ definitions:
       to_email:
         type: string
     type: object
-  dto.SendRequest:
+  port.EmailResponse:
     properties:
+      created:
+        type: string
+      description:
+        type: string
+      folder_id:
+        type: integer
       from_email:
         type: string
       from_name:
         type: string
       html:
         type: string
+      id:
+        type: integer
       subject:
         type: string
+      system_flag:
+        type: boolean
       text:
         type: string
-      to_email:
+      updated:
+        type: string
+    type: object
+  port.FolderResponse:
+    properties:
+      created:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      parent_id:
+        type: integer
+      system_flag:
+        type: boolean
+      updated:
         type: string
     type: object
 info:
@@ -45,7 +211,263 @@ info:
   title: notifications-service
   version: "1.0"
 paths:
-  /emails/send:
+  /admin/notifications/emails:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Create email
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.CreateEmailData'
+      produces:
+      - application/json
+      - text/plain
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/port.EmailResponse'
+        "400":
+          description: 'Possible error codes: bad_request, bad_request:invalid_folder_id,
+            bad_request:invalid_from_email, bad_request:invalid_from_name, bad_request:invalid_subject,
+            bad_request:invalid_html, bad_request:invalid_text'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create email (admin)
+      tags:
+      - emails
+  /admin/notifications/emails/{id}:
+    delete:
+      parameters:
+      - description: Email ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: 'Possible error codes: bad_request, bad_request:email_not_found'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete email (admin)
+      tags:
+      - emails
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Email ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update email
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/port._UpdateEmailData'
+      produces:
+      - application/json
+      - text/plain
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: 'Possible error codes: bad_request, bad_request:invalid_folder_id,
+            bad_request:invalid_from_email, bad_request:invalid_from_name, bad_request:invalid_subject,
+            bad_request:invalid_html, bad_request:invalid_text, bad_request:email_not_found'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update email (admin)
+      tags:
+      - emails
+  /admin/notifications/emails/filter:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Filter emails
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.FilterEmailsData'
+      produces:
+      - application/json
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/port.EmailResponse'
+            type: array
+        "400":
+          description: 'Possible error codes: bad_request'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Filter emails (admin)
+      tags:
+      - emails
+  /admin/notifications/emails/folders:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Create email folder
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.CreateFolderData'
+      produces:
+      - application/json
+      - text/plain
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/port.FolderResponse'
+        "400":
+          description: 'Possible error codes: bad_request, bad_request:invalid_parent,
+            bad_request:invalid_name, bad_request:folder_exist'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create email folder (admin)
+      tags:
+      - emails
+  /admin/notifications/emails/folders/{id}:
+    delete:
+      parameters:
+      - description: Folder ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: 'Possible error codes: bad_request, bad_request:folder_not_found'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete email folder (admin)
+      tags:
+      - emails
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Folder ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update email folder
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/port._UpdateFolderData'
+      produces:
+      - application/json
+      - text/plain
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: 'Possible error codes: bad_request, bad_request:invalid_name,
+            bad_request:folder_not_found'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update email folder (admin)
+      tags:
+      - emails
+  /admin/notifications/emails/folders/filter:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Filter email folders
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.FilterFoldersData'
+      produces:
+      - application/json
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/port.FolderResponse'
+            type: array
+        "400":
+          description: 'Possible error codes: bad_request'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Filter email folders (admin)
+      tags:
+      - emails
+  /admin/notifications/emails/logs/filter:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Filter email logs (admin)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.FilterEmailLogsData'
+      produces:
+      - application/json
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/port.EmailLogResponse'
+            type: array
+        "400":
+          description: 'Possible error codes: bad_request'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Filter email logs (admin)
+      tags:
+      - emails
+  /notifications/emails/send:
     post:
       consumes:
       - application/json
@@ -55,7 +477,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.SendRequest'
+          $ref: '#/definitions/github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.SendData'
       produces:
       - application/json
       - text/plain
@@ -63,12 +485,43 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/dto.EmailResponse'
+            $ref: '#/definitions/port.EmailLogResponse'
         "400":
-          description: 'Possible error codes: bad_request, bad_request:invalid_path'
+          description: 'Possible error codes: bad_request, bad_request:invalid_id,
+            bad_request:invalid_to_email, bad_request:email_not_found'
           schema:
             type: string
       summary: Send email
+      tags:
+      - emails
+  /notifications/emails/send/custom:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Send custom email
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.SendCustomData'
+      produces:
+      - application/json
+      - text/plain
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/port.EmailLogResponse'
+        "400":
+          description: 'Possible error codes: bad_request, bad_request:invalid_from_email,
+            bad_request:invalid_from_name, bad_request:invalid_subject, bad_request:invalid_to_email,
+            bad_request:invalid_html, bad_request:invalid_text'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Send custom email
       tags:
       - emails
 securityDefinitions:

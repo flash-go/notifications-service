@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 
 	// SDK
 	//
@@ -21,19 +20,19 @@ func main() {
 	// Create state service
 	stateService := state.NewWithSecureAuth(
 		&state.SecureAuthConfig{
-			Address:            os.Getenv("CONSUL_ADDR"),
+			Address:            config.GetEnvStr("CONSUL_ADDR"),
 			CAPem:              config.GetEnvBase64("CONSUL_CA_CRT"),
 			CertPEM:            config.GetEnvBase64("CONSUL_CLIENT_CRT"),
 			KeyPEM:             config.GetEnvBase64("CONSUL_CLIENT_KEY"),
 			InsecureSkipVerify: config.GetEnvBool("CONSUL_INSECURE_SKIP_VERIFY"),
-			Token:              os.Getenv("CONSUL_TOKEN"),
+			Token:              config.GetEnvStr("CONSUL_TOKEN"),
 		},
 	)
 
 	// Create config
 	cfg := config.New(
 		stateService,
-		os.Getenv("SERVICE_NAME"),
+		config.GetEnvStr("SERVICE_NAME"),
 	)
 
 	// Create postgres client and run mirgations

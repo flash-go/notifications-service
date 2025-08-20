@@ -15,7 +15,407 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/emails/send": {
+        "/admin/notifications/emails": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "tags": [
+                    "emails"
+                ],
+                "summary": "Create email (admin)",
+                "parameters": [
+                    {
+                        "description": "Create email",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.CreateEmailData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/port.EmailResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Possible error codes: bad_request, bad_request:invalid_folder_id, bad_request:invalid_from_email, bad_request:invalid_from_name, bad_request:invalid_subject, bad_request:invalid_html, bad_request:invalid_text",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/notifications/emails/filter": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "tags": [
+                    "emails"
+                ],
+                "summary": "Filter emails (admin)",
+                "parameters": [
+                    {
+                        "description": "Filter emails",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.FilterEmailsData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/port.EmailResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Possible error codes: bad_request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/notifications/emails/folders": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "tags": [
+                    "emails"
+                ],
+                "summary": "Create email folder (admin)",
+                "parameters": [
+                    {
+                        "description": "Create email folder",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.CreateFolderData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/port.FolderResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Possible error codes: bad_request, bad_request:invalid_parent, bad_request:invalid_name, bad_request:folder_exist",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/notifications/emails/folders/filter": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "tags": [
+                    "emails"
+                ],
+                "summary": "Filter email folders (admin)",
+                "parameters": [
+                    {
+                        "description": "Filter email folders",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.FilterFoldersData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/port.FolderResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Possible error codes: bad_request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/notifications/emails/folders/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "emails"
+                ],
+                "summary": "Delete email folder (admin)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Folder ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Possible error codes: bad_request, bad_request:folder_not_found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "tags": [
+                    "emails"
+                ],
+                "summary": "Update email folder (admin)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Folder ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update email folder",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/port._UpdateFolderData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Possible error codes: bad_request, bad_request:invalid_name, bad_request:folder_not_found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/notifications/emails/logs/filter": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "tags": [
+                    "emails"
+                ],
+                "summary": "Filter email logs (admin)",
+                "parameters": [
+                    {
+                        "description": "Filter email logs (admin)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.FilterEmailLogsData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/port.EmailLogResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Possible error codes: bad_request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/notifications/emails/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "emails"
+                ],
+                "summary": "Delete email (admin)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Email ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Possible error codes: bad_request, bad_request:email_not_found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "tags": [
+                    "emails"
+                ],
+                "summary": "Update email (admin)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Email ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update email",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/port._UpdateEmailData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Possible error codes: bad_request, bad_request:invalid_folder_id, bad_request:invalid_from_email, bad_request:invalid_from_name, bad_request:invalid_subject, bad_request:invalid_html, bad_request:invalid_text, bad_request:email_not_found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/notifications/emails/send": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -35,7 +435,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SendRequest"
+                            "$ref": "#/definitions/github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.SendData"
                         }
                     }
                 ],
@@ -43,11 +443,56 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/dto.EmailResponse"
+                            "$ref": "#/definitions/port.EmailLogResponse"
                         }
                     },
                     "400": {
-                        "description": "Possible error codes: bad_request, bad_request:invalid_path",
+                        "description": "Possible error codes: bad_request, bad_request:invalid_id, bad_request:invalid_to_email, bad_request:email_not_found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/notifications/emails/send/custom": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "tags": [
+                    "emails"
+                ],
+                "summary": "Send custom email",
+                "parameters": [
+                    {
+                        "description": "Send custom email",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.SendCustomData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/port.EmailLogResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Possible error codes: bad_request, bad_request:invalid_from_email, bad_request:invalid_from_name, bad_request:invalid_subject, bad_request:invalid_to_email, bad_request:invalid_html, bad_request:invalid_text",
                         "schema": {
                             "type": "string"
                         }
@@ -57,7 +502,180 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "dto.EmailResponse": {
+        "github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.CreateEmailData": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "folder_id": {
+                    "type": "integer"
+                },
+                "from_email": {
+                    "type": "string"
+                },
+                "from_name": {
+                    "type": "string"
+                },
+                "html": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "system_flag": {
+                    "type": "boolean"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.CreateFolderData": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "system_flag": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.FilterEmailLogsData": {
+            "type": "object",
+            "properties": {
+                "from_email": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "from_name": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "message_id": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "to_email": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.FilterEmailsData": {
+            "type": "object",
+            "properties": {
+                "folder_id": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "id": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "system_flag": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.FilterFoldersData": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "name": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "parent_id": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "system_flag": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.SendCustomData": {
+            "type": "object",
+            "properties": {
+                "from_email": {
+                    "type": "string"
+                },
+                "from_name": {
+                    "type": "string"
+                },
+                "html": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "to_email": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_flash-go_notifications-service_internal_port_adapter_handler_emails_http.SendData": {
+            "type": "object",
+            "properties": {
+                "email_id": {
+                    "type": "integer"
+                },
+                "to_email": {
+                    "type": "string"
+                },
+                "vars": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "port.EmailLogResponse": {
             "type": "object",
             "properties": {
                 "created": {
@@ -95,9 +713,79 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.SendRequest": {
+        "port.EmailResponse": {
             "type": "object",
             "properties": {
+                "created": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "folder_id": {
+                    "type": "integer"
+                },
+                "from_email": {
+                    "type": "string"
+                },
+                "from_name": {
+                    "type": "string"
+                },
+                "html": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "system_flag": {
+                    "type": "boolean"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "updated": {
+                    "type": "string"
+                }
+            }
+        },
+        "port.FolderResponse": {
+            "type": "object",
+            "properties": {
+                "created": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "system_flag": {
+                    "type": "boolean"
+                },
+                "updated": {
+                    "type": "string"
+                }
+            }
+        },
+        "port._UpdateEmailData": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "folder_id": {
+                    "type": "integer"
+                },
                 "from_email": {
                     "type": "string"
                 },
@@ -112,9 +800,20 @@ const docTemplate = `{
                 },
                 "text": {
                     "type": "string"
-                },
-                "to_email": {
+                }
+            }
+        },
+        "port._UpdateFolderData": {
+            "type": "object",
+            "properties": {
+                "description": {
                     "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
                 }
             }
         }

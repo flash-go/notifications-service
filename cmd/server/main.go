@@ -9,8 +9,6 @@ package main
 // @name Authorization
 
 import (
-	"os"
-
 	// Framework
 	//
 	// Core of the Flash Framework. Contains the fundamental components of
@@ -27,10 +25,17 @@ import (
 
 	"github.com/flash-go/sdk/config"
 	"github.com/flash-go/sdk/errors"
+	"github.com/flash-go/sdk/http/server/middleware"
 	"github.com/flash-go/sdk/infra"
 	"github.com/flash-go/sdk/logger"
+	"github.com/flash-go/sdk/services/users"
 	"github.com/flash-go/sdk/state"
 	"github.com/flash-go/sdk/telemetry"
+
+	// Ports
+
+	//// Handlers
+	httpEmailsHandlerAdapterPort "github.com/flash-go/notifications-service/internal/port/adapter/handler/emails/http"
 
 	// Implementations
 
@@ -55,19 +60,19 @@ func main() {
 	// Create state service
 	stateService := state.NewWithSecureAuth(
 		&state.SecureAuthConfig{
-			Address:            os.Getenv("CONSUL_ADDR"),
+			Address:            config.GetEnvStr("CONSUL_ADDR"),
 			CAPem:              config.GetEnvBase64("CONSUL_CA_CRT"),
 			CertPEM:            config.GetEnvBase64("CONSUL_CLIENT_CRT"),
 			KeyPEM:             config.GetEnvBase64("CONSUL_CLIENT_KEY"),
 			InsecureSkipVerify: config.GetEnvBool("CONSUL_INSECURE_SKIP_VERIFY"),
-			Token:              os.Getenv("CONSUL_TOKEN"),
+			Token:              config.GetEnvStr("CONSUL_TOKEN"),
 		},
 	)
 
 	// Create config
 	cfg := config.New(
 		stateService,
-		os.Getenv("SERVICE_NAME"),
+		config.GetEnvStr("SERVICE_NAME"),
 	)
 
 	// Create logger service
@@ -148,21 +153,133 @@ func main() {
 		},
 	)
 
+	// Create users middleware
+	usersMiddleware := users.NewMiddleware(
+		&users.MiddlewareConfig{
+			UsersService: cfg.Get(internalConfig.UsersServiceNameOptKey),
+			HttpClient:   httpClient,
+		},
+	)
+
+	// Get admin role
+	adminRole := cfg.Get(internalConfig.UsersAdminRoleOptKey)
+
 	// Add routes
 	httpServer.
 		// Emails
 
+		// Create email folder (admin)
+		AddRoute(
+			http.MethodPost,
+			"/admin/notifications/emails/folders",
+			emailsHandler.AdminCreateFolder,
+			middleware.ParseJsonBody[*httpEmailsHandlerAdapterPort.CreateFolderData](),
+			usersMiddleware.Auth(
+				users.WithAuthRolesOption(adminRole),
+			),
+		).
+		// Filter email folders (admin)
+		AddRoute(
+			http.MethodPost,
+			"/admin/notifications/emails/folders/filter",
+			emailsHandler.AdminFilterFolders,
+			middleware.ParseJsonBody[*httpEmailsHandlerAdapterPort.FilterFoldersData](),
+			usersMiddleware.Auth(
+				users.WithAuthRolesOption(adminRole),
+			),
+		).
+		// Delete email folder (admin)
+		AddRoute(
+			http.MethodDelete,
+			"/admin/notifications/emails/folders/{id}",
+			emailsHandler.AdminDeleteFolder,
+			usersMiddleware.Auth(
+				users.WithAuthRolesOption(adminRole),
+			),
+		).
+		// Update email folder (admin)
+		AddRoute(
+			http.MethodPatch,
+			"/admin/notifications/emails/folders/{id}",
+			emailsHandler.AdminUpdateFolder,
+			middleware.ParseJsonBody[*httpEmailsHandlerAdapterPort.UpdateFolderData](),
+			usersMiddleware.Auth(
+				users.WithAuthRolesOption(adminRole),
+			),
+		).
+
+		// Create email (admin)
+		AddRoute(
+			http.MethodPost,
+			"/admin/notifications/emails",
+			emailsHandler.AdminCreateEmail,
+			middleware.ParseJsonBody[*httpEmailsHandlerAdapterPort.CreateEmailData](),
+			usersMiddleware.Auth(
+				users.WithAuthRolesOption(adminRole),
+			),
+		).
+		// Filter emails (admin)
+		AddRoute(
+			http.MethodPost,
+			"/admin/notifications/emails/filter",
+			emailsHandler.AdminFilterEmails,
+			middleware.ParseJsonBody[*httpEmailsHandlerAdapterPort.FilterEmailsData](),
+			usersMiddleware.Auth(
+				users.WithAuthRolesOption(adminRole),
+			),
+		).
+		// Delete email (admin)
+		AddRoute(
+			http.MethodDelete,
+			"/admin/notifications/emails/{id}",
+			emailsHandler.AdminDeleteEmail,
+			usersMiddleware.Auth(
+				users.WithAuthRolesOption(adminRole),
+			),
+		).
+		// Update email (admin)
+		AddRoute(
+			http.MethodPatch,
+			"/admin/notifications/emails/{id}",
+			emailsHandler.AdminUpdateEmail,
+			middleware.ParseJsonBody[*httpEmailsHandlerAdapterPort.UpdateEmailData](),
+			usersMiddleware.Auth(
+				users.WithAuthRolesOption(adminRole),
+			),
+		).
+
+		// Send custom email
+		AddRoute(
+			http.MethodPost,
+			"/notifications/emails/send/custom",
+			emailsHandler.SendCustom,
+			middleware.ParseJsonBody[*httpEmailsHandlerAdapterPort.SendCustomData](),
+			usersMiddleware.Auth(
+				users.WithAuthRolesOption(adminRole),
+			),
+		).
 		// Send email
 		AddRoute(
 			http.MethodPost,
-			"/emails/send",
+			"/notifications/emails/send",
 			emailsHandler.Send,
+			middleware.ParseJsonBody[*httpEmailsHandlerAdapterPort.SendData](),
+		).
+		// Filter email logs (admin)
+		AddRoute(
+			http.MethodPost,
+			"/admin/notifications/emails/logs/filter",
+			emailsHandler.AdminFilterEmailLogs,
+			middleware.ParseJsonBody[*httpEmailsHandlerAdapterPort.FilterEmailLogsData](),
+			usersMiddleware.Auth(
+				users.WithAuthRolesOption(adminRole),
+			),
 		)
 
 	// Register service
 	if err := httpServer.RegisterService(
-		os.Getenv("SERVICE_NAME"),
-		os.Getenv("SERVICE_HOST"),
+		config.GetEnvStr("SERVICE_NAME"),
+		config.GetEnvStr("SERVICE_HOST"),
 		config.GetEnvInt("SERVICE_PORT"),
 	); err != nil {
 		loggerService.Log().Err(err).Send()
@@ -170,7 +287,7 @@ func main() {
 
 	// Listen http server
 	if err := <-httpServer.Listen(
-		os.Getenv("SERVER_HOST"),
+		config.GetEnvStr("SERVER_HOST"),
 		config.GetEnvInt("SERVER_PORT"),
 	); err != nil {
 		loggerService.Log().Err(err).Send()
